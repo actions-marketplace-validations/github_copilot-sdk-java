@@ -20,11 +20,11 @@ jobs:
     steps:
       # Clone the repository
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       # Install GitHub CLI and gh-aw extension for Copilot Agent interaction
       - name: Install gh-aw extension
-        uses: github/gh-aw/actions/setup-cli@4d44d0e89851a877f4ddc0cb6c0197e42b1016c5 # v0.73.0
+        uses: github/gh-aw/actions/setup-cli@2c1a237d2048b0e2412e7d7528892ea1257840e2 # v0.74.4
         with:
           version: v0.68.3
 
