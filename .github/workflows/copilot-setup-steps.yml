@@ -20,11 +20,11 @@ jobs:
     steps:
       # Clone the repository
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       # Install GitHub CLI and gh-aw extension for Copilot Agent interaction
       - name: Install gh-aw extension
-        uses: github/gh-aw/actions/setup-cli@4d44d0e89851a877f4ddc0cb6c0197e42b1016c5 # v0.73.0
+        uses: github/gh-aw/actions/setup-cli@9441310fb463ae6c16e58a793e8cb1796c49d053 # v0.80.5
         with:
           version: v0.68.3
 
@@ -35,7 +35,7 @@ jobs:
 
       # Set up JDK 17
       - name: Set up JDK 17
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5
         with:
           java-version: '17'
           distribution: 'temurin'
