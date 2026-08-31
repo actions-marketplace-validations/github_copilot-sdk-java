@@ -90,7 +90,7 @@ var session = client.createSession(
 ).get();
 ```
 
-See [ToolDefinition](apidocs/com/github/copilot/sdk/json/ToolDefinition.html) Javadoc for schema details.
+See [ToolDefinition](apidocs/com/github/copilot/rpc/ToolDefinition.html) Javadoc for schema details.
 
 ### Overriding Built-in Tools
 
@@ -149,7 +149,7 @@ var safeLookup = ToolDefinition.createSkipPermission(
 The CLI bypasses the permission request for this tool invocation, so no `PermissionRequestedEvent`
 is emitted and the `onPermissionRequest` handler is not called.
 
-See [ToolDefinition](apidocs/com/github/copilot/sdk/json/ToolDefinition.html) Javadoc for details.
+See [ToolDefinition](apidocs/com/github/copilot/rpc/ToolDefinition.html) Javadoc for details.
 
 ---
 
@@ -177,10 +177,10 @@ session.sendAndWait(new MessageOptions().setPrompt("Continue with the new model"
 The `reasoningEffort` parameter accepts `"low"`, `"medium"`, `"high"`, or `"xhigh"` for models
 that support reasoning. Pass `null` (or use the single-argument overload) to use the default.
 
-The session emits a [`SessionModelChangeEvent`](apidocs/com/github/copilot/sdk/generated/SessionModelChangeEvent.html)
+The session emits a [`SessionModelChangeEvent`](apidocs/com/github/copilot/generated/SessionModelChangeEvent.html)
 when the switch completes, which you can observe with `session.on(SessionModelChangeEvent.class, event -> ...)`.
 
-See [CopilotSession.setModel()](apidocs/com/github/copilot/sdk/CopilotSession.html#setModel(java.lang.String)) Javadoc for details.
+See [CopilotSession.setModel()](apidocs/com/github/copilot/CopilotSession.html#setModel(java.lang.String)) Javadoc for details.
 
 ---
 
@@ -265,9 +265,9 @@ var session = client.createSession(
 ).get();
 ```
 
-See [SystemMessageConfig](apidocs/com/github/copilot/sdk/json/SystemMessageConfig.html),
-[SectionOverride](apidocs/com/github/copilot/sdk/json/SectionOverride.html), and
-[SystemPromptSections](apidocs/com/github/copilot/sdk/json/SystemPromptSections.html) Javadoc for details.
+See [SystemMessageConfig](apidocs/com/github/copilot/rpc/SystemMessageConfig.html),
+[SectionOverride](apidocs/com/github/copilot/rpc/SectionOverride.html), and
+[SystemPromptSections](apidocs/com/github/copilot/rpc/SystemPromptSections.html) Javadoc for details.
 
 ---
 
@@ -323,7 +323,7 @@ session.send(new MessageOptions()
 ).get();
 ```
 
-See [BlobAttachment](apidocs/com/github/copilot/sdk/json/BlobAttachment.html) Javadoc for details.
+See [BlobAttachment](apidocs/com/github/copilot/rpc/BlobAttachment.html) Javadoc for details.
 
 Both `Attachment` and `BlobAttachment` implement the sealed `MessageAttachment` interface.
 For a mixed list with both types, use an explicit type hint:
@@ -565,6 +565,8 @@ session.send("@code-reviewer Review src/Main.java").get();
 | `tools` | List&lt;String&gt; | Tool names available to this agent |
 | `mcpServers` | Map | MCP servers available to this agent |
 | `infer` | Boolean | Whether the agent can be auto-selected based on context |
+| `skills` | List&lt;String&gt; | Skill names to preload into the agent's context |
+| `model` | String | Model identifier for this agent (e.g., "claude-haiku-4.5"); falls back to the parent session model if unavailable |
 
 ### Multiple Agents
 
@@ -588,7 +590,7 @@ var session = client.createSession(
 ).get();
 ```
 
-See [CustomAgentConfig](apidocs/com/github/copilot/sdk/json/CustomAgentConfig.html) Javadoc for full details.
+See [CustomAgentConfig](apidocs/com/github/copilot/rpc/CustomAgentConfig.html) Javadoc for full details.
 
 ### Programmatic Agent Selection
 
@@ -715,7 +717,7 @@ Use cases:
 - Sending status updates to the session log
 - Debugging session behavior with contextual messages
 
-See [CopilotSession.log()](apidocs/com/github/copilot/sdk/CopilotSession.html#log(java.lang.String)) Javadoc for details.
+See [CopilotSession.log()](apidocs/com/github/copilot/CopilotSession.html#log(java.lang.String)) Javadoc for details.
 
 ---
 
@@ -781,7 +783,7 @@ The `UserInputResponse` should include:
 - `setAnswer(String)` - The user's answer
 - `setWasFreeform(boolean)` - `true` if the answer was freeform text, `false` if it was from the provided choices
 
-See [UserInputHandler](apidocs/com/github/copilot/sdk/json/UserInputHandler.html) Javadoc for more details.
+See [UserInputHandler](apidocs/com/github/copilot/rpc/UserInputHandler.html) Javadoc for more details.
 
 ---
 
@@ -810,7 +812,7 @@ The `PermissionRequestResultKind` class provides well-known constants for common
 | `PermissionRequestResultKind.NO_RESULT` | `"no-result"` | No permission decision was made (protocol v3 only) |
 
 You can also pass a raw string to `setKind(String)` for custom or extension values. Use
-[`PermissionHandler.APPROVE_ALL`](apidocs/com/github/copilot/sdk/json/PermissionHandler.html) to approve all
+[`PermissionHandler.APPROVE_ALL`](apidocs/com/github/copilot/rpc/PermissionHandler.html) to approve all
 requests without writing a handler.
 
 ---
@@ -825,6 +827,12 @@ var hooks = new SessionHooks()
         System.out.println("Tool: " + input.getToolName());
         return CompletableFuture.completedFuture(PreToolUseHookOutput.allow());
     })
+    .setOnPreMcpToolCall((input, invocation) -> {
+        System.out.println("MCP Tool: " + input.getServerName() + "/" + input.getToolName());
+        // Set metadata on the MCP request
+        JsonNode meta = mapper.valueToTree(Map.of("source", "my-app"));
+        return CompletableFuture.completedFuture(PreMcpToolCallHookOutput.withMeta(meta));
+    })
     .setOnPostToolUse((input, invocation) -> {
         System.out.println("Result: " + input.getToolResult());
         return CompletableFuture.completedFuture(null);
@@ -835,7 +843,7 @@ var session = client.createSession(
 ).get();
 ```
 
-📖 **[Full Session Hooks documentation →](hooks.html)** for all 5 hook types, inputs/outputs, and examples.
+📖 **[Full Session Hooks documentation →](hooks.html)** for all 6 hook types, inputs/outputs, and examples.
 
 ---
 
@@ -962,7 +970,7 @@ subscription.close();
 ### Subscribing to Specific Event Types
 
 ```java
-import com.github.copilot.sdk.json.SessionLifecycleEventTypes;
+import com.github.copilot.rpc.SessionLifecycleEventTypes;
 
 // Listen only for session creation
 var subscription = client.onLifecycle(
@@ -1110,7 +1118,7 @@ session.setEventErrorPolicy(EventErrorPolicy.PROPAGATE_AND_LOG_ERRORS);
 session.setEventErrorPolicy(EventErrorPolicy.SUPPRESS_AND_LOG_ERRORS);
 ```
 
-See [EventErrorPolicy](apidocs/com/github/copilot/sdk/EventErrorPolicy.html) and [EventErrorHandler](apidocs/com/github/copilot/sdk/EventErrorHandler.html) Javadoc for details.
+See [EventErrorPolicy](apidocs/com/github/copilot/EventErrorPolicy.html) and [EventErrorHandler](apidocs/com/github/copilot/EventErrorHandler.html) Javadoc for details.
 
 ---
 
@@ -1147,7 +1155,7 @@ var options = new CopilotClientOptions()
 | `sourceName` | `COPILOT_OTEL_SOURCE_NAME` | Source name for telemetry spans |
 | `captureContent` | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | Whether to capture message content |
 
-See [TelemetryConfig](apidocs/com/github/copilot/sdk/json/TelemetryConfig.html) Javadoc for details.
+See [TelemetryConfig](apidocs/com/github/copilot/rpc/TelemetryConfig.html) Javadoc for details.
 
 ---
 
@@ -1379,12 +1387,32 @@ try (var client = new CopilotClient(options)) {
 - The session's working directory must be a GitHub repository
 - This option is only used when the SDK spawns the CLI process; it is ignored when connecting to an external server via `setCliUrl()`
 
+### Cloud Sessions
+
+Cloud sessions create a remote session in the cloud instead of a local session. Optionally associate repository metadata with the cloud session:
+
+```java
+var cloudOptions = new CloudSessionOptions()
+    .setRepository(new CloudSessionRepository()
+        .setOwner("my-org")
+        .setName("my-repo")
+        .setBranch("main"));
+
+var session = client.createSession(
+    new SessionConfig()
+        .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
+        .setCloud(cloudOptions)
+).get();
+```
+
+See [CloudSessionOptions](apidocs/com/github/copilot/rpc/CloudSessionOptions.html) and [CloudSessionRepository](apidocs/com/github/copilot/rpc/CloudSessionRepository.html) Javadoc for details.
+
 ---
 
 ## Next Steps
 
 - 📖 **[Documentation](documentation.html)** - Core concepts, events, streaming, models, tool filtering, reasoning effort
-- 📖 **[Session Hooks](hooks.html)** - All 5 hook types with inputs, outputs, and examples
+- 📖 **[Session Hooks](hooks.html)** - All 6 hook types with inputs, outputs, and examples
 - 📖 **[MCP Servers](mcp.html)** - Local and remote MCP server integration
 - 📖 **[Setup & Deployment](setup.html)** - OAuth, backend services, scaling, configuration reference
 - 📖 **[API Javadoc](apidocs/index.html)** - Complete API reference

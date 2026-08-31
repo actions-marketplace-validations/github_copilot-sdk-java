@@ -30,12 +30,12 @@ jbang BasicErrorHandling.java
 
 **Code:**
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.SessionConfig;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
 
 public class BasicErrorHandling {
     public static void main(String[] args) {
@@ -64,8 +64,8 @@ public class BasicErrorHandling {
 ## Handling specific error types
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
 import java.util.concurrent.ExecutionException;
 
 public class SpecificErrorHandling {
@@ -99,10 +99,10 @@ public class SpecificErrorHandling {
 ## Timeout handling
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.json.MessageOptions;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotSession;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.rpc.MessageOptions;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -130,9 +130,9 @@ public class TimeoutHandling {
 ## Aborting a request
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.json.MessageOptions;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotSession;
+import com.github.copilot.rpc.MessageOptions;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -162,8 +162,8 @@ public class AbortRequest {
 ## Graceful shutdown
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
 
 public class GracefulShutdown {
     public static void main(String[] args) {
@@ -192,12 +192,12 @@ public class GracefulShutdown {
 ## Try-with-resources pattern
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.SessionConfig;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
 
 public class TryWithResources {
     public static void doWork() throws Exception {
@@ -224,14 +224,14 @@ public class TryWithResources {
 ## Handling tool errors
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.SessionConfig;
-import com.github.copilot.sdk.json.ToolDefinition;
-import com.github.copilot.sdk.json.ToolResultObject;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
+import com.github.copilot.rpc.ToolDefinition;
+import com.github.copilot.rpc.ToolResultObject;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

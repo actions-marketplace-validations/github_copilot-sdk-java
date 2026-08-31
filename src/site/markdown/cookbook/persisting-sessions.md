@@ -30,12 +30,12 @@ jbang PersistingSessions.java
 
 **Code:**
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.SessionConfig;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
 
 public class PersistingSessions {
     public static void main(String[] args) throws Exception {
@@ -127,12 +127,12 @@ public class DeleteSession {
 ## Getting session history
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.generated.UserMessageEvent;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.ResumeSessionConfig;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.generated.UserMessageEvent;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.ResumeSessionConfig;
 
 public class SessionHistory {
     public static void main(String[] args) throws Exception {
@@ -162,7 +162,7 @@ public class SessionHistory {
 ## Complete example with session management
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
+//DEPS com.github:copilot-sdk-java:1.0.0
 import java.util.Scanner;
 
 public class SessionManager {

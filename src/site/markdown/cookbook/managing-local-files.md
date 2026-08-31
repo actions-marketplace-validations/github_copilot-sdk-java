@@ -34,15 +34,15 @@ jbang ManagingLocalFiles.java
 
 **Code:**
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.generated.SessionIdleEvent;
-import com.github.copilot.sdk.generated.ToolExecutionCompleteEvent;
-import com.github.copilot.sdk.generated.ToolExecutionStartEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.SessionConfig;
+//DEPS com.github:copilot-sdk-java:1.0.0
+import com.github.copilot.CopilotClient;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.generated.SessionIdleEvent;
+import com.github.copilot.generated.ToolExecutionCompleteEvent;
+import com.github.copilot.generated.ToolExecutionStartEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
@@ -161,7 +161,7 @@ session.send(new MessageOptions().setPrompt(prompt));
 ## Interactive file organization
 
 ```java
-//DEPS com.github:copilot-sdk-java:1.0.0-beta-java.4
+//DEPS com.github:copilot-sdk-java:1.0.0
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 

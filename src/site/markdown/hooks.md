@@ -9,6 +9,7 @@ Session hooks allow you to intercept and modify tool execution, user prompts, an
 | Hook | When It's Called | Can Modify |
 |------|------------------|------------|
 | [Pre-Tool Use](#Pre-Tool_Use_Hook) | Before a tool executes | Tool arguments, permission decision |
+| [Pre-MCP-Tool-Call](#Pre-MCP-Tool-Call_Hook) | Before an MCP tool call is dispatched | MCP request metadata (`_meta`) |
 | [Post-Tool Use](#Post-Tool_Use_Hook) | After a tool executes | Tool result, additional context |
 | [User Prompt Submitted](#User_Prompt_Submitted_Hook) | When user sends a message | Nothing (observation only) |
 | [Session Start](#Session_Start_Hook) | When session begins | Nothing (observation only) |
@@ -53,6 +54,7 @@ Called **before** a tool executes. Use this to:
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `getSessionId()` | `String` | Runtime session ID of the session that triggered the hook |
 | `getToolName()` | `String` | Name of the tool being called |
 | `getToolArgs()` | `JsonNode` | Arguments passed to the tool |
 | `getCwd()` | `String` | Current working directory |
@@ -118,6 +120,53 @@ var hooks = new SessionHooks()
 
 ---
 
+## Pre-MCP-Tool-Call Hook
+
+Called **before** an MCP tool call is dispatched to an MCP server. Use this to:
+- Inspect or log MCP tool calls
+- Set, replace, or remove MCP request metadata (`_meta`)
+
+### Input
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `getSessionId()` | `String` | Runtime session ID of the session that triggered the hook |
+| `getTimestamp()` | `long` | Unix timestamp in milliseconds |
+| `getCwd()` | `String` | Current working directory |
+| `getServerName()` | `String` | Name of the MCP server being called |
+| `getToolName()` | `String` | Name of the MCP tool being called |
+| `getArguments()` | `JsonNode` | Arguments for the MCP tool call |
+| `getToolCallId()` | `String` | Tool call ID (may be null) |
+| `getMeta()` | `Map<String, JsonNode>` | Existing MCP request metadata (may be null) |
+
+### Output
+
+Return `null` from the handler to preserve existing `_meta` (no-op). Otherwise, return a `PreMcpToolCallHookOutput`:
+
+| Factory Method | Effect |
+|----------------|--------|
+| `PreMcpToolCallHookOutput.withMeta(jsonNode)` | Replace `_meta` with the given JSON object |
+| `PreMcpToolCallHookOutput.removeMeta()` | Remove `_meta` from the request |
+
+### Example: Inject metadata into MCP requests
+
+```java
+var hooks = new SessionHooks()
+    .setOnPreMcpToolCall((input, invocation) -> {
+        System.out.println("MCP call: " + input.getServerName() + "/" + input.getToolName());
+        
+        // Inject custom metadata into the MCP request
+        var mapper = new ObjectMapper();
+        JsonNode meta = mapper.valueToTree(Map.of(
+            "source", "my-application",
+            "requestId", UUID.randomUUID().toString()
+        ));
+        return CompletableFuture.completedFuture(PreMcpToolCallHookOutput.withMeta(meta));
+    });
+```
+
+---
+
 ## Post-Tool Use Hook
 
 Called **after** a tool executes. Use this to:
@@ -130,6 +179,7 @@ Called **after** a tool executes. Use this to:
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `getSessionId()` | `String` | Runtime session ID of the session that triggered the hook |
 | `getToolName()` | `String` | Name of the tool that was called |
 | `getToolArgs()` | `JsonNode` | Arguments that were passed |
 | `getToolResult()` | `JsonNode` | Result from the tool |
@@ -187,8 +237,9 @@ Called when the user submits a prompt, before the LLM processes it. This is an o
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `sessionId()` | `String` | Runtime session ID of the session that triggered the hook |
 | `prompt()` | `String` | The user's prompt text |
-| `getTimestamp()` | `long` | Timestamp in milliseconds |
+| `timestamp()` | `long` | Timestamp in milliseconds |
 
 ### Output
 
@@ -221,8 +272,9 @@ Called when a session starts (either new or resumed).
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `sessionId()` | `String` | Runtime session ID of the session that triggered the hook |
 | `source()` | `String` | `"startup"`, `"resume"`, or `"new"` |
-| `getTimestamp()` | `long` | Timestamp in milliseconds |
+| `timestamp()` | `long` | Timestamp in milliseconds |
 
 ### Output
 
@@ -253,8 +305,9 @@ Called when a session ends.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `sessionId()` | `String` | Runtime session ID of the session that triggered the hook |
 | `reason()` | `String` | Why the session ended |
-| `getTimestamp()` | `long` | Timestamp in milliseconds |
+| `timestamp()` | `long` | Timestamp in milliseconds |
 
 ### Output
 
@@ -284,11 +337,11 @@ var hooks = new SessionHooks()
 Combining multiple hooks for comprehensive session control:
 
 ```java
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.json.PermissionHandler;
-import com.github.copilot.sdk.json.PreToolUseHookOutput;
-import com.github.copilot.sdk.json.SessionConfig;
-import com.github.copilot.sdk.json.SessionHooks;
+import com.github.copilot.CopilotClient;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.PreToolUseHookOutput;
+import com.github.copilot.rpc.SessionConfig;
+import com.github.copilot.rpc.SessionHooks;
 import java.util.concurrent.CompletableFuture;
 
 public class HooksExample {
@@ -406,11 +459,11 @@ To handle errors gracefully in your hooks:
 
 ## See Also
 
-- [SessionHooks Javadoc](apidocs/com/github/copilot/sdk/json/SessionHooks.html)
-- [PreToolUseHookInput Javadoc](apidocs/com/github/copilot/sdk/json/PreToolUseHookInput.html)
-- [PreToolUseHookOutput Javadoc](apidocs/com/github/copilot/sdk/json/PreToolUseHookOutput.html)
-- [PostToolUseHookInput Javadoc](apidocs/com/github/copilot/sdk/json/PostToolUseHookInput.html)
-- [PostToolUseHookOutput Javadoc](apidocs/com/github/copilot/sdk/json/PostToolUseHookOutput.html)
+- [SessionHooks Javadoc](apidocs/com/github/copilot/rpc/SessionHooks.html)
+- [PreToolUseHookInput Javadoc](apidocs/com/github/copilot/rpc/PreToolUseHookInput.html)
+- [PreToolUseHookOutput Javadoc](apidocs/com/github/copilot/rpc/PreToolUseHookOutput.html)
+- [PostToolUseHookInput Javadoc](apidocs/com/github/copilot/rpc/PostToolUseHookInput.html)
+- [PostToolUseHookOutput Javadoc](apidocs/com/github/copilot/rpc/PostToolUseHookOutput.html)
 
 ---
 
